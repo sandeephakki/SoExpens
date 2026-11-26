@@ -1,7 +1,0 @@
-{
-  "name": "soexpens",
-  "private": true,
-  "type": "module",
-  "description": "SoExpens - Society Expenses Tracker (static PWA)",
-  "scripts": { "test": "node --test tests/*.test.mjs" }
-}
