@@ -69,3 +69,13 @@ test('css: rows inside .form are forced back to one line (".form label" would st
   assert.ok(/\.form \.frow[^{]*\{[^}]*flex-direction:\s*row/.test(css));
   assert.ok(/\.form \.pick[^{]*\{[^}]*flex-direction:\s*row/.test(css) || /\.form \.frow, \.form \.pick/.test(css));
 });
+
+test('css: every text control is at least 16px (smaller makes iPhone Safari zoom in and stay zoomed)', () => {
+  const css = read('css/app.css');
+  assert.ok(/input, select, textarea[^{]*\{[^}]*font-size:\s*16px/.test(css));
+  for (const m of css.matchAll(/(^|\n)([^{}\n]*\b(?:input|select|textarea)\b[^{}\n]*)\{([^}]*)\}/g)) {
+    const size = /font-size:\s*(\d+)px/.exec(m[3]);
+    if (size) assert.ok(Number(size[1]) >= 16, `${m[2].trim()} sets font-size ${size[1]}px`);
+  }
+  assert.ok(!/maximum-scale|user-scalable/.test(read('index.html')), 'do not disable pinch zoom (accessibility)');
+});

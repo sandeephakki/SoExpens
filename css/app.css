@@ -234,3 +234,7 @@ canvas.preview { display: block; width: 100%; height: auto; }
 
 /* action buttons stay reachable while a long list scrolls inside a dialog */
 .modal-body .btn-row.sticky { position: sticky; bottom: -18px; margin: 12px -18px -18px; padding: 12px 18px calc(12px + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--line); border-radius: 0 0 16px 16px; }
+
+/* v1.4.2: iPhone Safari zooms into any text box smaller than 16px and never zooms back out.
+   Inputs inherited 14px from their labels, so force 16px on every control. Pinch-zoom stays available. */
+input, select, textarea, .form input, .form select, .form textarea { font-size: 16px; }

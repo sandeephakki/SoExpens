@@ -1,6 +1,6 @@
 /* SoExpens service worker. Network-first for same-origin files (always fresh when online,
    offline from cache otherwise). Bump CACHE_VERSION on every deploy. */
-const CACHE_VERSION = 'soexpens-v1.4.1'; // keep equal to core/version.js
+const CACHE_VERSION = 'soexpens-v1.4.2'; // keep equal to core/version.js
 const SCOPE = self.registration.scope; // works on user.github.io/repo/ and on a custom domain
 
 const SHELL = [
