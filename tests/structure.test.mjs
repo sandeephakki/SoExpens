@@ -63,3 +63,9 @@ test('replaceChildren must never receive a bare null (it would print the word "n
     }
   }
 });
+
+test('css: rows inside .form are forced back to one line (".form label" would stack them as a column)', () => {
+  const css = read('css/app.css');
+  assert.ok(/\.form \.frow[^{]*\{[^}]*flex-direction:\s*row/.test(css));
+  assert.ok(/\.form \.pick[^{]*\{[^}]*flex-direction:\s*row/.test(css) || /\.form \.frow, \.form \.pick/.test(css));
+});

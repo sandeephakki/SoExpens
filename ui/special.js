@@ -15,14 +15,17 @@ export function createSpecial(monthId, onDone) {
   const err = h('p', { class: 'err', role: 'alert' });
   const title = h('input', { type: 'text', maxlength: 60, autocomplete: 'off', placeholder: t('sp.titlePh'), 'aria-label': t('sp.title') });
   const amount = h('input', { type: 'text', inputmode: 'numeric', placeholder: '4000', 'aria-label': t('sp.amount') });
-  const boxes = flats.map((f) => ({ f, el: h('input', { type: 'checkbox', checked: true, 'aria-label': f.label }) }));
+  const boxes = flats.map((f) => ({ f, el: h('input', { type: 'checkbox', checked: true, 'aria-label': f.label }), amt: h('span', { class: 'famt' }) }));
   const total = h('p', { class: 'hint', role: 'status' });
   const all = h('input', { type: 'checkbox', checked: true, 'aria-label': t('flat.selectAll') });
   const upd = () => {
     const n = boxes.filter((b) => b.el.checked).length;
     const a = Number(String(amount.value).replace(/,/g, ''));
-    total.textContent = Number.isInteger(a) && a > 0 ? t('sp.expected', { n, total: fmt(n * a) }) : t('sp.picked', { n });
+    const ok = Number.isInteger(a) && a > 0;
+    total.textContent = ok ? t('sp.expected', { n, total: fmt(n * a) }) : t('sp.picked', { n });
+    boxes.forEach((b) => { b.amt.textContent = ok && b.el.checked ? fmt(a) : '-'; });
     all.checked = n === boxes.length;
+    all.indeterminate = n > 0 && n < boxes.length;
   };
   boxes.forEach((b) => b.el.addEventListener('change', upd));
   amount.addEventListener('input', upd);
@@ -32,9 +35,9 @@ export function createSpecial(monthId, onDone) {
     h('p', { class: 'msg' }, t('sp.createBody')),
     field(t('sp.title'), title), field(t('sp.amount'), amount, t('sp.amountHint')),
     h('div', { class: 'bar' }, h('label', { class: 'pick' }, all), h('strong', null, t('sp.whoPays'))),
-    h('div', { class: 'flist' }, boxes.map((b) => h('label', { class: 'frow pickrow' }, h('span', { class: 'pick' }, b.el), h('span', { class: 'fbadge' }, b.f.label), h('span', { class: 'finfo' }, h('span', { class: 'l1' }, b.f.owner.name || '-'))))),
+    h('div', { class: 'flist' }, boxes.map((b) => h('label', { class: 'frow pickrow' }, h('span', { class: 'pick' }, b.el), h('span', { class: 'fbadge' }, b.f.label), h('span', { class: 'finfo' }, h('span', { class: 'l1' }, b.f.owner.name || '-')), b.amt))),
     total, err,
-    h('div', { class: 'btn-row' },
+    h('div', { class: 'btn-row sticky' },
       h('button', { type: 'button', class: 'btn', onclick: () => m.close() }, t('common.cancel')),
       h('button', { type: 'submit', class: 'btn primary' }, t('sp.create'))));
   form.addEventListener('submit', async (ev) => {

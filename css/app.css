@@ -222,3 +222,15 @@ canvas.preview { display: block; width: 100%; height: auto; }
 .payrow .finfo .l1 { font-size: 14px; }
 .pickrow { cursor: pointer; padding: 2px 0; }
 .pickrow .finfo { padding-left: 6px; }
+
+/* v1.4.1: rows inside forms (create special collection) must stay one line: checkbox | flat | owner | amount.
+   ".form label" makes labels columns, so these rows need a more specific override. */
+.form .frow, .form .pick, .form .bar { flex-direction: row; }
+.form label.frow { align-items: center; gap: 8px; color: var(--ink); font-size: 14px; }
+.form .bar { align-items: center; gap: 8px; padding: 6px 0; }
+.form .bar strong { color: var(--ink); font-size: 14px; }
+.form .pick { gap: 0; }
+.pickrow .famt { margin-left: auto; padding-right: 6px; }
+
+/* action buttons stay reachable while a long list scrolls inside a dialog */
+.modal-body .btn-row.sticky { position: sticky; bottom: -18px; margin: 12px -18px -18px; padding: 12px 18px calc(12px + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--line); border-radius: 0 0 16px 16px; }
