@@ -9,6 +9,7 @@ import { fmt, shortDate, monthLabel } from '../bal/month-calc.js';
 import { openExport } from './export-view.js';
 import { monthPicker } from './months.js';
 import { specialCard, openSpecial } from './special.js';
+import { openBackup, restoreBackupFlow } from './backup.js';
 
 function chip(status) {
   return h('span', { class: `chip ${status}` }, t(status === 'closed' ? 'status.closed' : 'status.open'));
@@ -146,7 +147,7 @@ function reportCard(view, state) {
       open
         ? h('button', { type: 'button', class: 'btn', onclick: async () => {
           if (!(await confirmBox(t('dash.confirmClose', { month: view.label }), { ok: t('dash.close') }))) return;
-          try { await svc.closeMonth(month.id); toast(t('toast.closed')); } catch (e) { toast(errText(e), 'bad'); }
+          try { await svc.closeMonth(month.id); toast(t('toast.closed')); openBackup({ required: true }); } catch (e) { toast(errText(e), 'bad'); }
         } }, t('dash.close'))
         : h('button', { type: 'button', class: 'btn', onclick: async () => {
           try { await svc.unlockMonth(month.id); toast(t('toast.unlocked')); } catch (e) { toast(errText(e), 'bad'); }
@@ -199,7 +200,10 @@ export function renderDashboard(state, nav) {
         h('h2', null, t('dash.emptyTitle')), h('p', { class: 'empty' }, t(svc.getDoc().flats.length ? 'dash.emptyBody' : 'dash.emptyNoFlats')),
         h('button', { type: 'button', class: 'btn primary', onclick: async () => {
           try { state.monthId = await svc.addMonth(); } catch (e) { toast(errText(e), 'bad'); }
-        } }, t('months.add', { month: svc.suggestedNextMonth() }))));
+        } }, t('months.add', { month: svc.suggestedNextMonth() })),
+        svc.getDoc().flats.length === 0 ? h('div', { class: 'restore-start' },
+          h('h3', null, t('start.title')), h('p', { class: 'empty' }, t('start.body')),
+          h('button', { type: 'button', class: 'btn', onclick: () => restoreBackupFlow() }, t('start.restore'))) : null));
   }
   if (!state.monthId || !months.some((m) => m.id === state.monthId)) state.monthId = months[months.length - 1].id;
   const idx = months.findIndex((m) => m.id === state.monthId);

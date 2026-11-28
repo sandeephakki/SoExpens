@@ -20,6 +20,14 @@ Static PWA. No server, no build step, no login (v1, single user). Your data stay
 3. Close month. Next month: Months -> Add. Settle last month's late bills by unlocking it, editing, closing, sharing the new image. Later months update by themselves.
 4. Settings -> Export backup, and keep the file (Drive / WhatsApp to yourself). Use it to open the data on another device.
 
+## Backups: reminders and the month-close rule
+- A reminder bar appears after every 5 changes that are not in a backup. "Later" snoozes it for 5 more changes.
+- Closing a month REQUIRES a backup: a dialog opens that cannot be dismissed until the file is shared, downloaded or copied.
+  If you reload before saving, the bar "A month was closed. Save a backup now." stays until you do.
+- On phones the backup can be sent with the share sheet (Drive, WhatsApp to yourself, Files). Otherwise it downloads.
+- The counters only reset once you have actually saved the file, never just because the file was made.
+- If the browser's site data is cleared the app opens empty with a "Restore a backup" button on the first screen.
+
 ## Where is my data? (important)
 Every change saves automatically into this browser's own storage (IndexedDB) on this device. There is no Save button, no cloud and no server.
 Storage belongs to ONE browser on ONE device at ONE web address. A different browser, an incognito window, a different address,
@@ -38,6 +46,14 @@ Dashboard -> Special collections -> New. Name it (for example "Civil work"), set
 Enter the real cost as a normal Expense in the same month. Whatever is left over stays in savings automatically.
 Change one flat's amount by tapping it. "Add a flat" brings in a flat that was left out. The image shows the collected total
 and how many are still pending. Closed months are read-only until unlocked.
+
+## About, logo and sharing
+Settings -> last card = About: share the app link (native share sheet on phones; on desktop a dialog with WhatsApp, Telegram,
+Facebook, X, LinkedIn, Email, SMS and Copy link), plus the builder's website, LinkedIn and email.
+The link shared is the address the app is running from. It never includes any society data.
+App icon, favicon and header use the falcon logo (`img/`). For rich link previews in WhatsApp/Facebook,
+change `og:image` in `index.html` to the full address of the icon after you deploy, for example
+`https://<user>.github.io/<repo>/img/icon-512.png`.
 
 ## Rules
 - Closing savings = savings brought forward + collection + extra income - spent. Spent above collection reduces savings.

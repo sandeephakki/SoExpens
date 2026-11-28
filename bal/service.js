@@ -11,7 +11,9 @@ import { buildReport } from './report-model.js';
 
 let store = null;
 let doc = emptyDoc();
-let meta = { lastBackupAt: null, dirty: 0, lastSavedAt: null };
+export const REMIND_EVERY = 5; // remind after this many unbacked-up changes (same idea as Spend-na)
+const freshMeta = () => ({ lastBackupAt: null, dirty: 0, lastSavedAt: null, nextRemind: REMIND_EVERY, backupDue: false });
+let meta = freshMeta();
 let loadError = null;
 let clock = () => new Date();
 let chain = Promise.resolve();
@@ -28,7 +30,7 @@ export async function init(s) {
   store = s;
   chain = Promise.resolve();
   loadError = null;
-  meta = { lastBackupAt: null, dirty: 0, lastSavedAt: null, ...((await store.get('meta')) || {}) };
+  meta = { ...freshMeta(), ...((await store.get('meta')) || {}) };
   const saved = await store.get('doc');
   if (!saved) { doc = emptyDoc(); return; }
   const v = validateDoc(saved);
@@ -127,7 +129,13 @@ export function previewChange(kind, a, b) {
     startingSavings: doc.settings.startingSavings,
   };
 }
-export const closeMonth = (id) => commit((d) => rules.setStatus(d, id, 'closed'));
+export async function closeMonth(id) {
+  const out = await commit((d) => rules.setStatus(d, id, 'closed'));
+  meta = { ...meta, backupDue: true }; // closing a month REQUIRES a backup; stays on until one is saved
+  try { await store.set('meta', meta); } catch (e) { /* the banner state is a convenience; the close itself is saved */ }
+  notify();
+  return out;
+}
 export const unlockMonth = (id) => commit((d) => rules.setStatus(d, id, 'open'));
 export const saveMonthMeta = (id, v) => commit((d) => rules.updateMonthMeta(d, id, v));
 export const recalcCollection = (id) => commit((d) => rules.recalcCollection(d, id));
@@ -157,12 +165,26 @@ export const setRates = (ids, amount) => commit((d) => rules.setRates(d, ids, am
 export const addFlatsBulk = (v) => commit((d) => rules.addFlatsBulk(d, v));
 
 // ---- backup ----------------------------------------------------------------
-export async function exportBackup() {
-  const text = toBackupText({ ...doc, exportedAt: todayIso() });
-  meta = { ...meta, lastBackupAt: todayIso(), dirty: 0 };
-  try { await store.set('meta', meta); } catch (e) { /* backup text is still valid */ }
+// Builds the file text. Changes nothing: the counters only reset once the user has really saved it.
+export function prepareBackup() {
+  return { text: toBackupText({ ...doc, exportedAt: todayIso() }), filename: backupFileName(todayIso()) };
+}
+export async function markBackedUp() {
+  const next = { ...meta, lastBackupAt: todayIso(), dirty: 0, nextRemind: REMIND_EVERY, backupDue: false };
+  try { await store.set('meta', next); } catch (e) { throw new Error('save_failed'); } // keep "due" if we could not record it
+  meta = next;
   notify();
-  return { text, filename: backupFileName(todayIso()) };
+}
+export async function snoozeReminder() {
+  meta = { ...meta, nextRemind: (meta.dirty || 0) + REMIND_EVERY };
+  try { await store.set('meta', meta); } catch (e) { /* worst case: reminded again sooner */ }
+  notify();
+}
+// What the top bar shows: 'due' (a month was just closed), 'remind' (5+ changes), or null.
+export function getBackupState() {
+  const dirty = meta.dirty || 0;
+  const kind = meta.backupDue ? 'due' : dirty > 0 && dirty >= (meta.nextRemind || REMIND_EVERY) ? 'remind' : null;
+  return { kind, dirty, every: REMIND_EVERY, lastBackupAt: meta.lastBackupAt };
 }
 
 // Step 1: parse + validate, change nothing.
@@ -179,7 +201,7 @@ export async function applyImport(newDoc) {
   if (!v.ok) throw new Error('invariant_failed');
   try { await store.set('doc_prev', doc); } catch (e) { throw new Error('save_failed'); }
   const out = await commit(() => v.doc);
-  meta = { ...meta, dirty: 0 };
+  meta = { ...meta, dirty: 0, nextRemind: REMIND_EVERY, backupDue: false };
   try { await store.set('meta', meta); } catch (e) { /* convenience only */ }
   notify();
   return out;

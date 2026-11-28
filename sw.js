@@ -1,15 +1,15 @@
 /* SoExpens service worker. Network-first for same-origin files (always fresh when online,
    offline from cache otherwise). Bump CACHE_VERSION on every deploy. */
-const CACHE_VERSION = 'soexpens-v1.4.2'; // keep equal to core/version.js
+const CACHE_VERSION = 'soexpens-v1.6.0'; // keep equal to core/version.js
 const SCOPE = self.registration.scope; // works on user.github.io/repo/ and on a custom domain
 
 const SHELL = [
   '', 'index.html', 'manifest.json', 'css/app.css',
-  'core/app.js', 'core/dom.js', 'core/i18n.js', 'core/dialog.js', 'core/theme.js', 'core/update.js', 'core/version.js',
-  'ui/dashboard.js', 'ui/months.js', 'ui/special.js', 'ui/settings.js', 'ui/export-view.js', 'ui/report-canvas.js',
+  'core/app.js', 'core/dom.js', 'core/i18n.js', 'core/dialog.js', 'core/theme.js', 'core/share.js', 'core/update.js', 'core/version.js',
+  'ui/dashboard.js', 'ui/months.js', 'ui/special.js', 'ui/about.js', 'ui/backup.js', 'ui/settings.js', 'ui/export-view.js', 'ui/report-canvas.js',
   'bal/service.js', 'bal/month-calc.js', 'bal/month-rules.js', 'bal/validate.js', 'bal/report-model.js',
   'dal/store.js', 'dal/migrate.js', 'dal/backup.js',
-  'i18n/en.json', 'img/icon-192.png', 'img/icon-512.png', 'img/icon-maskable-512.png',
+  'i18n/en.json', 'img/icon-192.png', 'img/apple-touch-icon.png', 'img/favicon-32.png', 'img/author-160.png', 'img/icon-512.png', 'img/icon-maskable-512.png',
 ].map((p) => SCOPE + p);
 
 self.addEventListener('install', (event) => {

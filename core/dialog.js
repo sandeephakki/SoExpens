@@ -2,15 +2,16 @@
 import { h } from './dom.js';
 import { t } from './i18n.js';
 
-export function modal(title, content) {
+export function modal(title, content, { dismissable = true } = {}) {
   const dlg = h('dialog', { class: 'modal', 'aria-label': title },
     h('div', { class: 'modal-body' }, h('h2', null, title), content));
+  let canDismiss = dismissable; // false = must finish what the dialog asks (Esc / tapping outside do nothing)
   const close = () => { if (dlg.open) dlg.close(); dlg.remove(); };
-  dlg.addEventListener('cancel', (e) => { e.preventDefault(); close(); });
-  dlg.addEventListener('click', (e) => { if (e.target === dlg) close(); });
+  dlg.addEventListener('cancel', (e) => { e.preventDefault(); if (canDismiss) close(); });
+  dlg.addEventListener('click', (e) => { if (e.target === dlg && canDismiss) close(); });
   document.body.append(dlg);
   if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
-  return { el: dlg, close };
+  return { el: dlg, close, setDismissable: (v) => { canDismiss = v; } };
 }
 
 export function confirmBox(message, { ok = t('common.ok'), danger = false } = {}) {

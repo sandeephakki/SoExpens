@@ -126,7 +126,7 @@ test('service end to end: create, pay, persist across reload, export/import keep
   await svc.setLinePaid('2026-01', id, l0, true);
   let v = svc.getMonthView('2026-01'); assert.equal(v.specials[0].stats.collected, 5000); assert.equal(v.specials[0].lines[0].paidOn, '2026-01-20'); assert.equal(v.calc.closing, 10250 + 5000);
   await svc.init(store); v = svc.getMonthView('2026-01'); assert.equal(v.specials[0].stats.paidCount, 1);
-  const { text } = await svc.exportBackup(); await svc.init(createMemoryStore(false)); const p = svc.previewImport(text); assert.ok(p.ok); await svc.applyImport(p.doc);
+  const { text } = svc.prepareBackup(); await svc.markBackedUp(); await svc.init(createMemoryStore(false)); const p = svc.previewImport(text); assert.ok(p.ok); await svc.applyImport(p.doc);
   assert.equal(svc.getMonthView('2026-01').specials[0].stats.collected, 5000);
   await svc.markAllPaid('2026-01', id); assert.equal(svc.getMonthView('2026-01').specials[0].stats.pending, 0);
   await svc.removeLine('2026-01', id, l0); await svc.updateSpecial('2026-01', id, { title: 'Borewell motor' }); await svc.deleteSpecial('2026-01', id); assert.equal(svc.getMonthView('2026-01').specials.length, 0);

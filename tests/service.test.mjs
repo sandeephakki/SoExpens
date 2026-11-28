@@ -65,7 +65,7 @@ test('backup export -> wipe -> import gives identical data on a "new device"', a
   await svc.addExtraIncome('2026-01', { details: 'Interest', amount: 250 });
   await svc.addFlat({ label: 'A1', rate: 2000, owner: { name: 'Ravi', phone: '99' }, tenant: { name: 'S', phone: '' } });
   const original = structuredClone(svc.getDoc());
-  const { text, filename } = await svc.exportBackup();
+  const { text, filename } = svc.prepareBackup(); await svc.markBackedUp();
   assert.match(filename, /^soexpens-backup-2026-10-14\.json$/);
   await fresh(); // other device
   const p = svc.previewImport(text);

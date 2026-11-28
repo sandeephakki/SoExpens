@@ -106,7 +106,7 @@ test('service: saved/unsaved tracking and summary stay in step with flats', asyn
   assert.equal(svc.getMeta().dirty, 1); assert.ok(svc.getMeta().lastSavedAt > 0);
   await svc.setRates('all', 0); assert.equal(svc.getSummary().noAmount, 12); assert.equal(svc.getSummary().monthly, 0);
   assert.equal(svc.getDoc().months[0].collection.amount, 24750, 'existing month untouched');
-  await svc.exportBackup(); assert.equal(svc.getMeta().dirty, 0);
+  svc.prepareBackup(); assert.equal(svc.getMeta().dirty, 2, 'making the file alone must not reset the counter'); await svc.markBackedUp(); assert.equal(svc.getMeta().dirty, 0);
   await svc.init(store); assert.equal(svc.getSummary().units, 12, 'survives reload'); assert.equal(svc.getMeta().dirty, 0);
   await svc.addMonth(); await svc.recalcCollection('2026-02'); assert.equal(svc.getDoc().months[1].collection.amount, 0);
 });

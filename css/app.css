@@ -238,3 +238,37 @@ canvas.preview { display: block; width: 100%; height: auto; }
 /* v1.4.2: iPhone Safari zooms into any text box smaller than 16px and never zooms back out.
    Inputs inherited 14px from their labels, so force 16px on every control. Pinch-zoom stays available. */
 input, select, textarea, .form input, .form select, .form textarea { font-size: 16px; }
+
+/* v1.5: logo, About card, share */
+.brand .logo { width: 30px; height: 30px; border-radius: 8px; flex: none; align-self: center; margin-right: -2px; }
+.about { display: flex; flex-direction: column; gap: 12px; }
+.about-app { display: flex; align-items: center; gap: 14px; }
+.about-app h2 { font-size: 20px; }
+.about-logo { width: 56px; height: 56px; border-radius: 14px; flex: none; }
+.urlline { font-size: 13px; color: var(--muted); overflow-wrap: anywhere; user-select: all; -webkit-user-select: all; padding: 8px 10px; background: var(--bg); border: 1px dashed var(--line); border-radius: 8px; }
+.sharegrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.sharegrid .btn { min-height: 44px; }
+.author { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 18px; border-radius: 14px; color: #fff; background: linear-gradient(135deg, #0f2041 0%, #1e3a5f 55%, #1a5c50 100%); }
+.author-photo { width: 84px; height: 84px; flex: none; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,.28); background: rgba(255,255,255,.08); }
+.author-body { flex: 1; min-width: 210px; }
+.author .kicker { margin: 0 0 2px; font-size: 11px; letter-spacing: .6px; text-transform: uppercase; color: rgba(255,255,255,.65); }
+.author-name { margin: 0; font-size: 18px; font-weight: 750; }
+.author-role { margin: 2px 0 6px; font-size: 13px; color: #9fe3d9; }
+.author-bio { margin: 0 0 12px; font-size: 13px; line-height: 1.6; color: rgba(255,255,255,.85); }
+.author-links { display: flex; gap: 8px; flex-wrap: wrap; }
+.author-links .btn { color: #fff; border: 0; text-decoration: none; font-size: 14px; }
+.author-links .site { background: #2ec4b6; color: #0f2041; }
+.author-links .li { background: #0a66c2; }
+.author-links .mail { background: rgba(255,255,255,.16); }
+.author-links .apps { background: #5a4a8f; }
+.hint.fine { font-size: 12px; }
+a.btn { text-decoration: none; color: var(--ink); }
+
+/* v1.6: backup bar and dialog */
+.banner.bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; text-align: left; padding: 10px 14px; margin: 0; border-bottom: 1px solid var(--line); font-weight: 600; }
+.banner.bar > span:first-child { flex: 1 1 190px; }
+.bar-actions { display: flex; gap: 8px; }
+.banner.ok { background: var(--accent-soft); color: var(--accent); }
+.stackbtns { display: flex; flex-direction: column; gap: 8px; }
+.restore-start { margin-top: 8px; padding-top: 14px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.restore-start h3 { margin: 0; color: var(--ink); }

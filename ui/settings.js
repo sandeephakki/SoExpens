@@ -8,6 +8,8 @@ import { fmt, shortDate } from '../bal/month-calc.js';
 import { getTheme, setTheme, THEMES } from '../core/theme.js';
 import { checkForUpdate } from '../core/update.js';
 import { APP_VERSION } from '../core/version.js';
+import { aboutCard } from './about.js';
+import { openBackup, restoreBackupFlow } from './backup.js';
 
 const selected = new Set(); // flat ids ticked for "set amount"
 
@@ -172,40 +174,6 @@ function flatsCard() {
 }
 
 // ---- backup ------------------------------------------------------------------
-async function pickFile() {
-  return new Promise((resolve) => {
-    const input = h('input', { type: 'file', accept: 'application/json,.json', hidden: true });
-    input.addEventListener('change', () => resolve(input.files && input.files[0] ? input.files[0] : null));
-    input.addEventListener('cancel', () => resolve(null));
-    document.body.append(input);
-    input.click();
-    setTimeout(() => input.remove(), 60000);
-  });
-}
-
-function restoreFlow() {
-  return async () => {
-    const file = await pickFile();
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { toast(t('err.too_big'), 'bad'); return; }
-    let text;
-    try { text = await file.text(); } catch (e) { toast(t('err.unknown'), 'bad'); return; }
-    const p = svc.previewImport(text);
-    if (!p.ok) {
-      const first = p.errors.slice(0, 6);
-      const known = first.length === 1 && ['empty', 'too_big', 'not_json', 'not_object', 'wrong_app', 'bad_version', 'newer_version'].includes(first[0]);
-      const m = modal(t('set.restoreFailed'), h('div', null,
-        h('p', { class: 'msg' }, known ? t(`err.${first[0]}`) : t('set.restoreInvalid')),
-        known ? null : h('ul', { class: 'errs' }, first.map((c) => h('li', null, c))),
-        h('div', { class: 'btn-row' }, h('button', { type: 'button', class: 'btn', onclick: () => m.close() }, t('common.close')))));
-      return;
-    }
-    const ok = await confirmBox(t('set.restoreConfirm', { society: p.summary.society, months: p.summary.months, flats: p.summary.flats }), { ok: t('set.restoreDo'), danger: true });
-    if (!ok) return;
-    try { await svc.applyImport(p.doc); toast(t('set.restored')); } catch (e) { toast(errText(e), 'bad'); }
-  };
-}
-
 function backupCard() {
   const meta = svc.getMeta();
   const undo = h('button', { type: 'button', class: 'btn', hidden: true, onclick: async () => {
@@ -217,19 +185,12 @@ function backupCard() {
     h('header', { class: 'card-head' }, h('h2', null, t('set.backupTitle'))),
     svc.isVolatile() ? h('p', { class: 'banner warn' }, t('set.volatile')) : null,
     h('p', { class: 'hint' }, t('set.whereSaved')),
+    h('p', { class: 'hint' }, t('set.reminders')),
+    h('p', { class: 'hint' }, t('set.clearedHint')),
     meta.dirty > 0 ? h('p', { class: 'banner warn' }, t('set.dirty', { n: meta.dirty })) : null,
     h('div', { class: 'btn-row wrap' },
-      h('button', { type: 'button', class: 'btn primary', onclick: async () => {
-        try {
-          const { text, filename } = await svc.exportBackup();
-          const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
-          const a = h('a', { href: url, download: filename });
-          document.body.append(a); a.click(); a.remove();
-          setTimeout(() => URL.revokeObjectURL(url), 4000);
-          toast(t('set.exported'));
-        } catch (e) { toast(t('err.unknown'), 'bad'); }
-      } }, icon('share'), t('set.export')),
-      h('button', { type: 'button', class: 'btn', onclick: restoreFlow() }, t('set.restore')),
+      h('button', { type: 'button', class: 'btn primary', onclick: () => openBackup({ required: false }) }, icon('share'), t('set.export')),
+      h('button', { type: 'button', class: 'btn', onclick: () => restoreBackupFlow() }, t('set.restore')),
       undo),
     h('p', { class: 'hint' }, meta.lastBackupAt ? t('set.lastBackup', { date: shortDate(meta.lastBackupAt) + ' ' + meta.lastBackupAt.slice(0, 4) }) : t('set.neverBackedUp')));
 }
@@ -258,5 +219,5 @@ function appCard() {
 }
 
 export function renderSettings() {
-  return h('section', { class: 'page' }, h('h1', null, t('set.title')), h('div', { class: 'cards settings' }, societyCard(), flatsCard(), backupCard(), appCard()));
+  return h('section', { class: 'page' }, h('h1', null, t('set.title')), h('div', { class: 'cards settings' }, societyCard(), flatsCard(), backupCard(), appCard()), aboutCard());
 }

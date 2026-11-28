@@ -8,6 +8,7 @@ import * as svc from '../bal/service.js';
 import { renderDashboard } from '../ui/dashboard.js';
 import { renderMonths } from '../ui/months.js';
 import { renderSettings } from '../ui/settings.js';
+import { backupBar } from '../ui/backup.js';
 
 const ROUTES = ['dashboard', 'months', 'settings'];
 const state = { monthId: null };
@@ -29,6 +30,7 @@ function banners() {
   const out = [];
   const err = svc.getLoadError();
   if (err) out.push(h('p', { class: 'banner warn top', role: 'alert' }, t('app.loadError')));
+  const bar = backupBar(); if (bar) out.push(bar);
   if (svc.isVolatile()) out.push(h('p', { class: 'banner warn top', role: 'alert' }, t('app.volatile')));
   return out;
 }
@@ -60,7 +62,7 @@ function shell() {
     link('dashboard', 'home', t('nav.dashboard')), link('months', 'list', t('nav.months')), link('settings', 'gear', t('nav.settings')));
   view = h('main', { class: 'view', id: 'main' });
   root.replaceChildren(
-    h('header', { class: 'top' }, h('div', { class: 'brand' }, h('strong', null, t('app.name')), h('span', { class: 'soc' }, svc.getDoc().settings.societyName), h('small', { class: 'saved' }))),
+    h('header', { class: 'top' }, h('div', { class: 'brand' }, h('img', { class: 'logo', src: 'img/icon-192.png', alt: '', width: 30, height: 30 }), h('strong', null, t('app.name')), h('span', { class: 'soc' }, svc.getDoc().settings.societyName), h('small', { class: 'saved' }))),
     h('div', { class: 'frame' }, navEl, view));
 }
 
